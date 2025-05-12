@@ -1,7 +1,6 @@
 #include "../include/mux4.hpp"
 
 void mux4::process() {
-
   switch (sel.read()) {
     case 0: out.write(A.read()); break;
     case 1: out.write(B.read()); break;
