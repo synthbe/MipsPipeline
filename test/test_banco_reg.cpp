@@ -28,12 +28,12 @@ SC_MODULE(test_banco_reg) {
     we.write(true);
     rd.write(1);
     wd.write(56);
-    wait(10, SC_NS);
+    wait(5, SC_NS);
 
     we.write(false);
     rs1.write(1);
     rs2.write(0);
-    wait(1, SC_NS);
+    wait(5, SC_NS);
 
     std::cout << "rd1 (reg[1]) = " << rd1.read() << std::endl;
     std::cout << "rd2 (reg[0]) = " << rd2.read() << std::endl;
