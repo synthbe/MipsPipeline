@@ -1,7 +1,7 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Iinclude -I$(HOME)/systemc-install/include
-LDFLAGS = -L$(HOME)/systemc-install/lib -lsystemc
-LDLIBPATH = LD_LIBRARY_PATH=$(HOME)/systemc-install/lib
+CXXFLAGS = -std=c++17 -Iinclude -I$(SYSTEMC_PATH)/include
+LDFLAGS = -L$(SYSTEMC_PATH)/lib -lsystemc
+LDLIBPATH = LD_LIBRARY_PATH=$(SYSTEMC_PATH)/lib
 
 SRC := $(wildcard src/*.cpp)
 TESTS := $(wildcard test/*.cpp)
