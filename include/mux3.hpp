@@ -5,13 +5,13 @@
 #include <systemc.h>
 
 SC_MODULE(mux3) {
-  sc_in<sc_uint<3>> sel;
-  sc_in<sc_uint<32>> A, B, C;
-  sc_out<sc_uint<32>> out;
-
-  void process();
-
-  SC_CTOR(mux3);
-};
-
-#endif // !MUX3_HPP
+    sc_in<sc_uint<2>> sel;
+    sc_in<sc_uint<32>> A, B, C;
+    sc_out<sc_uint<32>> out;
+  
+    void process();
+  
+    SC_CTOR(mux3);
+  };
+  
+ #endif // !MUX3_HPP

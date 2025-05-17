@@ -1,10 +1,4 @@
 #include "../include/banco_reg.hpp"
-#include "sysc/communication/sc_signal.h"
-#include "sysc/kernel/sc_externs.h"
-#include "sysc/kernel/sc_module.h"
-#include "sysc/kernel/sc_simcontext.h"
-#include "sysc/kernel/sc_time.h"
-#include <ostream>
 #include <systemc.h>
 
 SC_MODULE(test_banco_reg) {
@@ -26,14 +20,14 @@ SC_MODULE(test_banco_reg) {
 
   void test() {
     we.write(true);
-    rd.write(1);
+    rd.write(1);     
     wd.write(56);
-    wait(5, SC_NS);
+    wait(10, SC_NS);
 
     we.write(false);
     rs1.write(1);
     rs2.write(0);
-    wait(5, SC_NS);
+    wait(10, SC_NS);
 
     std::cout << "rd1 (reg[1]) = " << rd1.read() << std::endl;
     std::cout << "rd2 (reg[0]) = " << rd2.read() << std::endl;
@@ -41,7 +35,7 @@ SC_MODULE(test_banco_reg) {
     sc_stop();
   }
 
-  SC_CTOR(test_banco_reg) : uut("banco_reg") {
+  SC_CTOR(test_banco_reg) {
     uut.clk(clk);
     uut.we(we);
     uut.rs1(rs1);
@@ -59,6 +53,5 @@ SC_MODULE(test_banco_reg) {
 int sc_main(int argc, char **argv) {
   test_banco_reg tb("tb");
   sc_start();
-
   return 0;
 }

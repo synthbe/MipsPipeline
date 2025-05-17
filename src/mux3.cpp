@@ -9,8 +9,8 @@ void mux3::process() {
     case 2: out.write(C.read()); break;
     default: out.write(0); break;
   }
-
 }
+
 mux3::mux3(sc_module_name name) : sc_module(name) {
   SC_METHOD(process);
   sensitive << sel << A << B << C;
