@@ -16,7 +16,11 @@ SC_MODULE(banco_reg) {
   void write();
   void read();
 
-  SC_CTOR(banco_reg);
+  SC_CTOR(banco_reg) {
+    SC_CTHREAD(write, clk.pos());
+    SC_METHOD(read);
+    sensitive << rs1 << rs2;
+  }
 };
 
 #endif // !BANCO_REG_HPP
