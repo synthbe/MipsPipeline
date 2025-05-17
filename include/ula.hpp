@@ -5,6 +5,17 @@
 #include "sysc/kernel/sc_module.h"
 #include <systemc.h>
 
+
+enum ULAOP {
+    SOMA,
+    SUB,
+    AND,
+    OR,
+    XOR,
+    NOT,
+    EQUAL
+};
+
 SC_MODULE(ula) {
   sc_in<sc_uint<32>> A, B;
   sc_in<sc_uint<3>> op;

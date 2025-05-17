@@ -7,13 +7,13 @@ void ula::process() {
   bool z = false, n = false, e = false;
 
   switch (op.read()) {
-    case 0: r = a + b; break;
-    case 1: r = a - b; break;
-    case 2: r = a & b; break;
-    case 3: r = a | b; break;
-    case 4: r = a ^ b; break;
-    case 5: r = ~a; break;
-    case 6: e = (a == b); r = 0; break;
+    case SOMA: r = a + b; break;
+    case SUB: r = a - b; break;
+    case AND: r = a & b; break;
+    case OR: r = a | b; break;
+    case XOR: r = a ^ b; break;
+    case NOT: r = ~a; break;
+    case EQUAL: e = (a == b); r = 0; break;
     default: r = 0;
   }
 
