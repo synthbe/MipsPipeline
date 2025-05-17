@@ -1,4 +1,6 @@
 #include "../include/mux3.hpp"
+#include "sysc/kernel/sc_module_name.h"
+#include <systemc.h>
 
 void mux3::process() {
   switch (sel.read()) {
@@ -13,5 +15,3 @@ mux3::mux3(sc_module_name name) : sc_module(name) {
   SC_METHOD(process);
   sensitive << sel << A << B << C;
 }
-
-

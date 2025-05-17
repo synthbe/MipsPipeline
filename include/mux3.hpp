@@ -14,4 +14,4 @@ SC_MODULE(mux3) {
     SC_CTOR(mux3);
   };
   
-  #endif // !MUX3_HPP
+ #endif // !MUX3_HPP
