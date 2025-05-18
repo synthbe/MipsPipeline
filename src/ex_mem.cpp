@@ -2,7 +2,7 @@
 
 void ex_mem::connect_flip_flop_d(flip_flop_d &ff, sc_in<bool> &in, sc_out<bool> &out) {
   ff.clk(clk);
-  ff.rst(rst);
+  ff.rst(earth);
   ff.a(in);
   ff.b(out);
 }
@@ -10,7 +10,7 @@ void ex_mem::connect_flip_flop_d(flip_flop_d &ff, sc_in<bool> &in, sc_out<bool> 
 template<int N>
 void ex_mem::connect_register(registrador<N> &reg, sc_in<sc_uint<N>> &in, sc_out<sc_uint<N>> &out) {
   reg.clk(clk);
-  reg.rst(rst);
+  reg.rst(earth);
   reg.we(vcc);
   reg.d_in(in);
   reg.d_out(out);
@@ -19,7 +19,7 @@ void ex_mem::connect_register(registrador<N> &reg, sc_in<sc_uint<N>> &in, sc_out
 template<int N>
 void ex_mem::connect_register(registrador<N> &reg, sc_signal<sc_uint<N>> &in, sc_signal<sc_uint<N>> &out) {
   reg.clk(clk);
-  reg.rst(rst);
+  reg.rst(earth);
   reg.we(vcc);
   reg.d_in(in);
   reg.d_out(out);
@@ -46,6 +46,7 @@ ex_mem::ex_mem(sc_module_name name) : sc_module(name) {
     connect_register(pc_reg, pc, pc_out);
     connect_register(reg_data_reg, reg_data_uint, reg_data_out_uint);
     connect_register(absolute_reg, absolute, absolute_out);
+    connect_register(rd_reg, rd, rd_out);
   SC_METHOD(process);
   sensitive << clk.pos();
 }

@@ -14,12 +14,13 @@
 #include "../include/pc_end.hpp"
 #include "../include/and.hpp"
 #include "../include/utils.hpp"
+#include "../include/mem_wb.hpp"
 
 #include <bitset>
 #include <systemc.h>
 
 SC_MODULE(test_cpu) {
-  const int CLOCK_SIZE_NS = 10;
+  const int CLOCK_SIZE_NS = 20;
   sc_signal<bool> clk;
   sc_signal<bool> vcc, earth;
 
@@ -77,6 +78,7 @@ SC_MODULE(test_cpu) {
   sc_signal<sc_int<32>> ex_mem_ula_result_out, ex_mem_reg_data_out;
   sc_signal<bool> ex_mem_ula_zero_out, ex_mem_ula_negative_out;
   sc_signal<sc_uint<26>> ex_mem_absolute_out;
+  sc_signal<sc_uint<5>> ex_mem_rd_out;
 
   // Quarto estágio
   mem_dados mem_mem_dados{"mem_mem_dados"};
@@ -91,6 +93,14 @@ SC_MODULE(test_cpu) {
   sc_signal<bool> jump_gate_out;
   sc_signal<sc_uint<32>> pc_next_value_out;
 
+  // Quinto estágio
+  mem_wb bar_mem_wb{"bar_mem_wb"};
+  mux2<sc_int<32>> mux_mem_to_reg{"mux_mem_to_reg"};
+ 
+    sc_signal<bool> mem_wb_regWrite_out, mem_wb_memToReg_out;
+    sc_signal<sc_uint<5>> mem_wb_rd_out;
+    sc_signal<sc_int<32>> mem_wb_ula_result_out, mem_wb_mem_data_out;
+    sc_signal<sc_int<32>> mux_mem_to_reg_out;
 
   void clock_gen() {
     while (true) {
@@ -113,7 +123,9 @@ SC_MODULE(test_cpu) {
         std::cout << "----------------------------------------" << std::endl;
         std::cout << "palavra lida: 0b" << std::bitset<32>{palavra.read()} << std::endl;
         std::cout << "palavra: 0b" <<  std::bitset<32>{ifid_inst_saida.read()} << std::endl; 
-        std::cout << "isJump: " << ex_mem_isJump_out.read() << std::endl;
+        std::cout << "isJump controle: " << isJump.read() << std::endl;
+        std::cout << "isJump (id/ex): " << id_ex_isJump_out.read() << std::endl;
+        std::cout << "isJump (ex/mem): " << ex_mem_isJump_out.read() << std::endl;
         std::cout << "endereco: " << std::hex << "0x" << pc_end_result_out.read() << std::endl;
         std::cout << "Jump gate: " << jump_gate_out.read() << std::endl;
         std::cout << "Last last last program counter: " << std::hex << "0x" << ex_mem_pc_out.read() << std::endl;
@@ -187,8 +199,8 @@ SC_MODULE(test_cpu) {
     b_reg.we(earth);
     b_reg.rs1(read1);
     b_reg.rs2(read2);
-    b_reg.rd(read1); // Temporário
-    b_reg.wd(ext_immidiate); // Temporário
+    b_reg.rd(mem_wb_rd_out);
+    b_reg.wd(mux_mem_to_reg_out);
     b_reg.rd1(b_reg_result1);
     b_reg.rd2(b_reg_result2);
 
@@ -243,7 +255,6 @@ SC_MODULE(test_cpu) {
     ula_ex.negative(ula_negative_out);
 
     bar_ex_mem.clk(clk);
-    bar_ex_mem.rst(jump_gate_out);
     bar_ex_mem.earth(earth);
     bar_ex_mem.vcc(vcc);
     bar_ex_mem.isJump(id_ex_isJump_out);
@@ -271,6 +282,8 @@ SC_MODULE(test_cpu) {
     bar_ex_mem.ula_result_out(ex_mem_ula_result_out);
     bar_ex_mem.reg_data_out(ex_mem_reg_data_out);
     bar_ex_mem.absolute_out(ex_mem_absolute_out);
+    bar_ex_mem.rd(id_ex_rd_out);
+    bar_ex_mem.rd_out(ex_mem_rd_out);
 
     mem_mem_dados.clk(clk);
     mem_mem_dados.dataRead(ex_mem_dataRead_out);
@@ -299,6 +312,27 @@ SC_MODULE(test_cpu) {
     mux_pc_next_value.A(inc_result_out);
     mux_pc_next_value.B(pc_end_result_out);
     mux_pc_next_value.out(pc_next_value_out);
+
+    bar_mem_wb.clk(clk);
+    bar_mem_wb.rst(earth);
+    bar_mem_wb.earth(earth);
+    bar_mem_wb.vcc(vcc);
+    bar_mem_wb.regWrite(ex_mem_regWrite_out);
+    bar_mem_wb.memToReg(ex_mem_memToReg_out);
+    bar_mem_wb.ula_result(ex_mem_ula_result_out);
+    bar_mem_wb.mem_data(mem_dados_result_out);
+    bar_mem_wb.rd(ex_mem_rd_out);
+    bar_mem_wb.regWrite_out(mem_wb_regWrite_out);
+    bar_mem_wb.memToReg_out(mem_wb_memToReg_out);
+    bar_mem_wb.ula_result_out(mem_wb_ula_result_out);
+    bar_mem_wb.mem_data_out(mem_wb_mem_data_out);
+    bar_mem_wb.rd_out(mem_wb_rd_out);
+
+    mux_mem_to_reg.sel(mem_wb_memToReg_out);
+    // ORDEM IMPORTA AQUI: consulte enum na parte de controle
+    mux_mem_to_reg.A(mem_wb_ula_result_out);
+    mux_mem_to_reg.B(mem_wb_mem_data_out);
+    mux_mem_to_reg.out(mux_mem_to_reg_out);
 
 
     SC_THREAD(clock_gen);

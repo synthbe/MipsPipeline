@@ -7,7 +7,6 @@
 
 SC_MODULE(ex_mem) {
   sc_in<bool> clk;
-  sc_in<bool> rst;
   sc_in<bool> earth, vcc;
 
 
@@ -19,6 +18,7 @@ SC_MODULE(ex_mem) {
   sc_in<sc_int<32>> ula_result, reg_data;
   sc_in<sc_uint<32>> pc;
   sc_in<sc_uint<26>> absolute;
+  sc_in<sc_uint<5>> rd;
 
   flip_flop_d isJump_reg{"isJump_reg"};
   flip_flop_d regWrite_reg{"regWrite_reg"};
@@ -33,11 +33,13 @@ SC_MODULE(ex_mem) {
     registrador<32> ula_result_reg{"ula_result_reg"};
     registrador<32> reg_data_reg{"reg_data_reg"};
     registrador<26> absolute_reg{"absolute_reg"};
+    registrador<5> rd_reg{"rd_reg"};
 
 
   sc_out<bool> isJump_out, regWrite_out,
     dataRead_out, dataWrite_out, memToReg_out, ula_zero_out, ula_negative_out;
   sc_out<sc_uint<2>> flagSel_out;
+  sc_out<sc_uint<5>> rd_out;
 
   sc_out<sc_uint<32>> pc_out;
   sc_out<sc_int<32>> ula_result_out, reg_data_out;

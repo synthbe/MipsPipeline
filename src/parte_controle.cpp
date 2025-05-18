@@ -40,6 +40,14 @@ void parte_controle::process() {
     else if(spec == J_TYPE_OP::IF_ZERO) flagSel.write(FLAG_SEL::ZERO);
     else flagSel.write(FLAG_SEL::NEG);
 
+  } else {
+    isJump.write(false);
+    regWrite.write(false);
+    op2Sel.write(OP2_SEL::RT);
+    opUla.write(ULAOP::SOMA);
+    dataRead.write(false);
+    dataWrite.write(false);
+    memToReg.write(MEM_TO_REG::ULA_RESULT);
   }
 }
 
