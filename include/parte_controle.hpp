@@ -43,7 +43,7 @@ SC_MODULE(parte_controle) {
 
   sc_out<bool> isJump, regWrite, op2Sel,
     dataRead, dataWrite, memToReg;
-  sc_out<sc_uint<5>> opUla;
+  sc_out<sc_uint<11>> opUla;
   sc_out<sc_uint<2>> flagSel;
 
   void process();

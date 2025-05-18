@@ -6,7 +6,7 @@ void parte_controle::process() {
   sc_uint<2> type = opcode.range(5, 4);
 
   if(type == OP_TYPES::R_TYPE) { // Tipo R
-    sc_uint<10> funct = palavra.read().range(9, 0);
+    sc_uint<11> funct = palavra.read().range(10, 0);
     isJump.write(false);
     regWrite.write(true);
     op2Sel.write(OP2_SEL::RT);
