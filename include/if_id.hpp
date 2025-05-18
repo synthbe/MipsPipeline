@@ -11,6 +11,7 @@ SC_MODULE(if_id) {
   sc_out<sc_uint<32>> out_pc, out_inst;
   sc_out<sc_uint<5>> read1, read2, write1;
   sc_out<sc_int<16>> immediate;
+  sc_out<sc_uint<26>> absolute;
 
   registrador<32> ifid_pc{"ifid_pc"};
   registrador<32> ifid_inst{"ifid_inst"};

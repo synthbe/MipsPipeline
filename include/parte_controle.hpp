@@ -13,6 +13,7 @@ enum FLAG_SEL {
     VCC,
     ZERO,
     NEG,
+    EARTH,
 };
 
 enum MEM_TO_REG {

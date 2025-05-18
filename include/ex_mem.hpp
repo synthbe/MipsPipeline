@@ -18,6 +18,7 @@ SC_MODULE(ex_mem) {
   sc_in<bool> ula_zero, ula_negative;
   sc_in<sc_int<32>> ula_result, reg_data;
   sc_in<sc_uint<32>> pc;
+  sc_in<sc_uint<26>> absolute;
 
   flip_flop_d isJump_reg{"isJump_reg"};
   flip_flop_d regWrite_reg{"regWrite_reg"};
@@ -31,6 +32,7 @@ SC_MODULE(ex_mem) {
     registrador<32> pc_reg{"pc_reg"};
     registrador<32> ula_result_reg{"ula_result_reg"};
     registrador<32> reg_data_reg{"reg_data_reg"};
+    registrador<26> absolute_reg{"absolute_reg"};
 
 
   sc_out<bool> isJump_out, regWrite_out,
@@ -38,7 +40,8 @@ SC_MODULE(ex_mem) {
   sc_out<sc_uint<2>> flagSel_out;
 
   sc_out<sc_uint<32>> pc_out;
-  sc_out<sc_int<32>> ula_result_out, reg_data_out;;
+  sc_out<sc_int<32>> ula_result_out, reg_data_out;
+  sc_out<sc_uint<26>> absolute_out;
 
   sc_signal<sc_uint<32>> ula_result_uint, ula_result_out_uint;
   sc_signal<sc_uint<32>> reg_data_uint, reg_data_out_uint;

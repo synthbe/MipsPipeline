@@ -7,7 +7,7 @@ SC_MODULE(test_parte_controle) {
 
   sc_signal<bool> isJump, regWrite, op2Sel,
     dataRead, dataWrite, memToReg;
-  sc_signal<sc_uint<5>> opUla;
+  sc_signal<sc_uint<11>> opUla;
   sc_signal<sc_uint<2>> flagSel;
 
   parte_controle uut{"uut"};

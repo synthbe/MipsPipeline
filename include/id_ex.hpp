@@ -19,6 +19,7 @@ SC_MODULE(id_ex) {
   sc_in<sc_int<32>> read1, read2, immediate;
   sc_in<sc_uint<32>> pc;
   sc_in<sc_uint<5>> rd, rt, rs;
+  sc_in<sc_uint<26>> absolute;
 
   flip_flop_d isJump_reg{"isJump_reg"};
   flip_flop_d regWrite_reg{"regWrite_reg"};
@@ -36,6 +37,7 @@ SC_MODULE(id_ex) {
     registrador<5> rd_reg{"rd_reg"};
     registrador<5> rt_reg{"rt_reg"};
     registrador<5> rs_reg{"rs_reg"};
+    registrador<26> absolute_reg{"absolute_reg"};
 
 
   sc_out<bool> isJump_out, regWrite_out, op2Sel_out,
@@ -46,6 +48,7 @@ SC_MODULE(id_ex) {
   sc_out<sc_int<32>> read1_out, read2_out, immediate_out;
   sc_out<sc_uint<32>> pc_out;
   sc_out<sc_uint<5>> rd_out, rt_out, rs_out;
+  sc_out<sc_uint<26>> absolute_out;
 
   sc_signal<sc_uint<32>> read1_uint, read2_uint, immediate_uint;
   sc_signal<sc_uint<32>> read1_out_uint, read2_out_uint, immediate_out_uint;

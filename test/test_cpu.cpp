@@ -9,7 +9,13 @@
 #include "../include/ula.hpp"
 #include "../include/mux2.hpp"
 #include "../include/ex_mem.hpp"
+#include "../include/mem_dados.hpp"
+#include "../include/mux4.hpp"
+#include "../include/pc_end.hpp"
+#include "../include/and.hpp"
+#include "../include/utils.hpp"
 
+#include <bitset>
 #include <systemc.h>
 
 SC_MODULE(test_cpu) {
@@ -21,7 +27,8 @@ SC_MODULE(test_cpu) {
   registrador<32> pc{"pc"};
   mem_instrucao mem_ins{"mem_ins"};
   somador inc{"inc"};
-  sc_signal<sc_uint<32>> fourConstant, pcNextValue, pcCurrValue, palavra;
+  sc_signal<sc_uint<32>> fourConstant, pcCurrValue, palavra;
+  sc_signal<sc_uint<32>> inc_result_out;
   sc_signal<bool> resetPc, pcWrite;
 
   // Registradores IF/ID
@@ -29,6 +36,7 @@ SC_MODULE(test_cpu) {
     sc_signal<sc_uint<32>> ifid_pc_saida, ifid_inst_saida;
     sc_signal<sc_uint<5>> read1, read2, write1;
     sc_signal<sc_int<16>> immediate;
+    sc_signal<sc_uint<26>> absolute;
 
 
   // Segundo estágio
@@ -52,6 +60,7 @@ SC_MODULE(test_cpu) {
     sc_signal<sc_int<32>> id_ex_read1_out, id_ex_read2_out, id_ex_immediate_out;
     sc_signal<sc_uint<32>> id_ex_pc_out;
     sc_signal<sc_uint<5>> id_ex_rd_out, id_ex_rt_out, id_ex_rs_out;
+    sc_signal<sc_uint<26>> id_ex_absolute_out;
 
   // Terceiro estágio
   ula ula_ex{"ula_ex"};
@@ -67,6 +76,21 @@ SC_MODULE(test_cpu) {
   sc_signal<sc_uint<32>> ex_mem_pc_out;
   sc_signal<sc_int<32>> ex_mem_ula_result_out, ex_mem_reg_data_out;
   sc_signal<bool> ex_mem_ula_zero_out, ex_mem_ula_negative_out;
+  sc_signal<sc_uint<26>> ex_mem_absolute_out;
+
+  // Quarto estágio
+  mem_dados mem_mem_dados{"mem_mem_dados"};
+  mux4<bool> mux_flag_sel{"mux_flag_sel"};
+  pc_end mem_pc_end{"mem_pc_end"};
+  and_port jump_gate{"gate_gate"};
+  mux2<sc_uint<32>> mux_pc_next_value{"mux_pc_next_value"};
+
+  sc_signal<sc_int<32>> mem_dados_result_out;
+  sc_signal<sc_uint<32>> pc_end_result_out;
+  sc_signal<bool> mux_flag_sel_out;
+  sc_signal<bool> jump_gate_out;
+  sc_signal<sc_uint<32>> pc_next_value_out;
+
 
   void clock_gen() {
     while (true) {
@@ -79,16 +103,24 @@ SC_MODULE(test_cpu) {
 
   // A cada ciclo de clock avança uma instrução
   void test() {
-    for(int i=0; i<4*10; i++) {
-        mem_ins.mem[i] = i;
-    }
+    mem_ins.mem[4] = 0b11000000; // Jump incondicional
+    mem_ins.mem[5] = 0b0;
+    mem_ins.mem[6] = 0b0;
+    mem_ins.mem[7] = 0b00000100;
 
-    for(int i=0; i<5; i++) {
+    for(int i=0; i<6; i++) {
         wait(CLOCK_SIZE_NS, SC_NS);
+        std::cout << "----------------------------------------" << std::endl;
+        std::cout << "palavra lida: 0b" << std::bitset<32>{palavra.read()} << std::endl;
+        std::cout << "palavra: 0b" <<  std::bitset<32>{ifid_inst_saida.read()} << std::endl; 
+        std::cout << "isJump: " << ex_mem_isJump_out.read() << std::endl;
+        std::cout << "endereco: " << std::hex << "0x" << pc_end_result_out.read() << std::endl;
+        std::cout << "Jump gate: " << jump_gate_out.read() << std::endl;
         std::cout << "Last last last program counter: " << std::hex << "0x" << ex_mem_pc_out.read() << std::endl;
         std::cout << "Last last program counter: " << std::hex << "0x" << id_ex_pc_out.read() << std::endl;
         std::cout << "Last program counter: " << std::hex << "0x" << ifid_pc_saida.read() << std::endl;
         std::cout << "Curr program counter: " << std::hex << "0x" << pc.d_out.read() << std::endl;
+        std::cout << "----------------------------------------" << std::endl;
     }
 
     sc_stop();
@@ -115,12 +147,12 @@ SC_MODULE(test_cpu) {
     pc.clk(clk);
     pc.rst(resetPc);
     pc.we(pcWrite);
-    pc.d_in(pcNextValue);
+    pc.d_in(pc_next_value_out);
     pc.d_out(pcCurrValue);
 
     inc.a(pc.d_out);
     inc.b(fourConstant);
-    inc.d_out(pcNextValue);
+    inc.d_out(inc_result_out);
 
     mem_ins.endereco(pcCurrValue);
     mem_ins.palavra(palavra);
@@ -136,6 +168,7 @@ SC_MODULE(test_cpu) {
     bar_if_id.read2(read2);
     bar_if_id.write1(write1);
     bar_if_id.immediate(immediate);
+    bar_if_id.absolute(absolute);
 
     controle.palavra(ifid_inst_saida);
     controle.isJump(isJump);
@@ -160,7 +193,7 @@ SC_MODULE(test_cpu) {
     b_reg.rd2(b_reg_result2);
 
     bar_id_ex.clk(clk);
-    bar_id_ex.rst(earth); // Temporário
+    bar_id_ex.rst(jump_gate_out);
     bar_id_ex.earth(earth);
     bar_id_ex.vcc(vcc);
     bar_id_ex.isJump(isJump);
@@ -178,6 +211,7 @@ SC_MODULE(test_cpu) {
     bar_id_ex.rd(write1);
     bar_id_ex.rt(read1);
     bar_id_ex.rs(read2);
+    bar_id_ex.absolute(absolute);
 
     bar_id_ex.isJump_out(id_ex_isJump_out);
     bar_id_ex.regWrite_out(id_ex_regWrite_out);
@@ -194,6 +228,7 @@ SC_MODULE(test_cpu) {
     bar_id_ex.rd_out(id_ex_rd_out);
     bar_id_ex.rt_out(id_ex_rt_out);
     bar_id_ex.rs_out(id_ex_rs_out);
+    bar_id_ex.absolute_out(id_ex_absolute_out);
 
     op2_mux.sel(id_ex_op2Sel_out);
     op2_mux.A(id_ex_read2_out);
@@ -208,7 +243,7 @@ SC_MODULE(test_cpu) {
     ula_ex.negative(ula_negative_out);
 
     bar_ex_mem.clk(clk);
-    bar_ex_mem.rst(earth); // Temporário
+    bar_ex_mem.rst(jump_gate_out);
     bar_ex_mem.earth(earth);
     bar_ex_mem.vcc(vcc);
     bar_ex_mem.isJump(id_ex_isJump_out);
@@ -222,6 +257,7 @@ SC_MODULE(test_cpu) {
     bar_ex_mem.ula_result(ula_result_out);
     bar_ex_mem.reg_data(id_ex_read2_out);
     bar_ex_mem.pc(id_ex_pc_out);
+    bar_ex_mem.absolute(id_ex_absolute_out);
 
     bar_ex_mem.isJump_out(ex_mem_isJump_out);
     bar_ex_mem.regWrite_out(ex_mem_regWrite_out);
@@ -234,6 +270,36 @@ SC_MODULE(test_cpu) {
     bar_ex_mem.pc_out(ex_mem_pc_out);
     bar_ex_mem.ula_result_out(ex_mem_ula_result_out);
     bar_ex_mem.reg_data_out(ex_mem_reg_data_out);
+    bar_ex_mem.absolute_out(ex_mem_absolute_out);
+
+    mem_mem_dados.clk(clk);
+    mem_mem_dados.dataRead(ex_mem_dataRead_out);
+    mem_mem_dados.dataWrite(ex_mem_dataWrite_out);
+    mem_mem_dados.endereco(ex_mem_ula_result_out);
+    mem_mem_dados.dados(ex_mem_reg_data_out);
+    mem_mem_dados.resposta(mem_dados_result_out);
+
+    mem_pc_end.pc(ex_mem_pc_out);
+    mem_pc_end.absoluto(ex_mem_absolute_out);
+    mem_pc_end.resposta(pc_end_result_out);
+
+    mux_flag_sel.sel(ex_mem_flagSel_out);
+    // ORDEM IMPORTA AQUI: consulte enum na parte de controle
+    mux_flag_sel.A(vcc);
+    mux_flag_sel.B(ex_mem_ula_zero_out);
+    mux_flag_sel.C(ex_mem_ula_negative_out);
+    mux_flag_sel.D(earth);
+    mux_flag_sel.out(mux_flag_sel_out);
+
+    jump_gate.A(ex_mem_isJump_out);
+    jump_gate.B(mux_flag_sel_out);
+    jump_gate.out(jump_gate_out);
+
+    mux_pc_next_value.sel(jump_gate_out);
+    mux_pc_next_value.A(inc_result_out);
+    mux_pc_next_value.B(pc_end_result_out);
+    mux_pc_next_value.out(pc_next_value_out);
+
 
     SC_THREAD(clock_gen);
     SC_THREAD(test);

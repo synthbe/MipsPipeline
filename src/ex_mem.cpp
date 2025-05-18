@@ -45,6 +45,7 @@ ex_mem::ex_mem(sc_module_name name) : sc_module(name) {
     connect_register(flagSel_reg, flagSel, flagSel_out);
     connect_register(pc_reg, pc, pc_out);
     connect_register(reg_data_reg, reg_data_uint, reg_data_out_uint);
+    connect_register(absolute_reg, absolute, absolute_out);
   SC_METHOD(process);
   sensitive << clk.pos();
 }

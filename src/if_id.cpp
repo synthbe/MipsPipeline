@@ -5,6 +5,7 @@ void if_id::process() {
   read2.write(ifid_inst.d_out.read().range(20, 16));
   write1.write(ifid_inst.d_out.read().range(15, 11));
   immediate.write(static_cast<sc_int<16>>(ifid_inst.d_out.read().range(15, 0)));
+  absolute.write(ifid_pc.d_out.read().range(25, 0));
 }
 
 if_id::if_id(sc_module_name name) : sc_module(name) {

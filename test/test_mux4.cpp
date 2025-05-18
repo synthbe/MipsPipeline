@@ -6,7 +6,7 @@ SC_MODULE(test_mux4) {
   sc_signal<sc_uint<32>> A, B, C, D;
   sc_signal<sc_uint<32>> out;
 
-  mux4 uut{"mux4"};
+  mux4<sc_uint<32>> uut{"mux4"};
 
   void test() {
     A.write(10);
