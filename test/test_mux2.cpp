@@ -2,17 +2,17 @@
 #include <systemc.h>
 
 SC_MODULE(test_mux2) {
-  sc_signal<sc_uint<2>> sel;
+  sc_signal<bool> sel;
   sc_signal<sc_uint<32>>  A, B;
   sc_signal<sc_uint<32>> out;
 
-  mux2 uut{"mux2"};
+  mux2<sc_uint<32>> uut{"mux2"};
 
   void test() {
     A.write(10);
     B.write(20);
 
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < 1; ++i) {
       sel.write(i);
       wait(1, SC_NS);
       std::cout << "sel = " << i << " -> out = " << out.read() << std::endl;

@@ -4,14 +4,24 @@
 #include "sysc/communication/sc_signal_ports.h"
 #include <systemc.h>
 
+template<typename T>
 SC_MODULE(mux2) {
-  sc_in<sc_uint<2>> sel;
-  sc_in<sc_uint<32>> A, B;
-  sc_out<sc_uint<32>> out;
+  sc_in<bool> sel;
+  sc_in<T> A, B;
+  sc_out<T> out;
 
-  void process();
+  void process() {
+    if(!sel.read()) {
+        out.write(A.read());
+    } else {
+        out.write(B.read());
+    }
+  }
 
-  SC_CTOR(mux2);
+  SC_CTOR(mux2) {
+    SC_METHOD(process);
+    sensitive << sel << A << B;
+  };
 };
 
 #endif // !MUX2_HPP

@@ -17,10 +17,10 @@ enum ULAOP {
 };
 
 SC_MODULE(ula) {
-  sc_in<sc_uint<32>> A, B;
-  sc_in<sc_uint<3>> op;
-  sc_out<sc_uint<32>> R;
-  sc_out<bool> zero, negative, equal;
+  sc_in<sc_int<32>> A, B;
+  sc_in<sc_uint<11>> op;
+  sc_out<sc_int<32>> R;
+  sc_out<bool> zero, negative;
 
   void process();
 

@@ -6,6 +6,9 @@
 #include "../include/parte_controle.hpp"
 #include "../include/if_id.hpp"
 #include "../include/id_ex.hpp"
+#include "../include/ula.hpp"
+#include "../include/mux2.hpp"
+#include "../include/ex_mem.hpp"
 
 #include <systemc.h>
 
@@ -42,13 +45,28 @@ SC_MODULE(test_cpu) {
 
   id_ex bar_id_ex{"bar_id_ex"};
 
-    sc_signal<bool> isJump_out, regWrite_out, op2Sel_out,
-      dataRead_out, dataWrite_out, memToReg_out;
-    sc_signal<sc_uint<11>> opUla_out;
-    sc_signal<sc_uint<2>> flagSel_out;
-    sc_signal<sc_int<32>> read1_out, read2_out, immediate_out;
-    sc_signal<sc_uint<32>> pc_out;
-    sc_signal<sc_uint<5>> rd_out, rt_out, rs_out;
+    sc_signal<bool> id_ex_isJump_out, id_ex_regWrite_out, id_ex_op2Sel_out,
+      id_ex_dataRead_out, id_ex_dataWrite_out, id_ex_memToReg_out;
+    sc_signal<sc_uint<11>> id_ex_opUla_out;
+    sc_signal<sc_uint<2>> id_ex_flagSel_out;
+    sc_signal<sc_int<32>> id_ex_read1_out, id_ex_read2_out, id_ex_immediate_out;
+    sc_signal<sc_uint<32>> id_ex_pc_out;
+    sc_signal<sc_uint<5>> id_ex_rd_out, id_ex_rt_out, id_ex_rs_out;
+
+  // Terceiro estágio
+  ula ula_ex{"ula_ex"};
+  mux2<sc_int<32>> op2_mux{"op2_mux"};
+  sc_signal<sc_int<32>> op2_mux_out;
+  sc_signal<sc_int<32>> ula_result_out;
+  sc_signal<bool> ula_zero_out, ula_negative_out;
+
+  ex_mem bar_ex_mem{"bar_ex_mem"};
+  sc_signal<bool> ex_mem_isJump_out, ex_mem_regWrite_out,
+    ex_mem_dataRead_out, ex_mem_dataWrite_out, ex_mem_memToReg_out;
+  sc_signal<sc_uint<2>> ex_mem_flagSel_out;
+  sc_signal<sc_uint<32>> ex_mem_pc_out;
+  sc_signal<sc_int<32>> ex_mem_ula_result_out, ex_mem_reg_data_out;
+  sc_signal<bool> ex_mem_ula_zero_out, ex_mem_ula_negative_out;
 
   void clock_gen() {
     while (true) {
@@ -67,7 +85,8 @@ SC_MODULE(test_cpu) {
 
     for(int i=0; i<5; i++) {
         wait(CLOCK_SIZE_NS, SC_NS);
-        std::cout << "Last last program counter: " << std::hex << "0x" << pc_out.read() << std::endl;
+        std::cout << "Last last last program counter: " << std::hex << "0x" << ex_mem_pc_out.read() << std::endl;
+        std::cout << "Last last program counter: " << std::hex << "0x" << id_ex_pc_out.read() << std::endl;
         std::cout << "Last program counter: " << std::hex << "0x" << ifid_pc_saida.read() << std::endl;
         std::cout << "Curr program counter: " << std::hex << "0x" << pc.d_out.read() << std::endl;
     }
@@ -75,7 +94,18 @@ SC_MODULE(test_cpu) {
     sc_stop();
   }
 
-  SC_CTOR(test_cpu) : pc("pc"), mem_ins("mem_ins"), inc("inc"), bar_if_id("bar_if_id") {
+  SC_CTOR(test_cpu) : 
+    pc("pc"), 
+    mem_ins("mem_ins"), 
+    inc("inc"), 
+    bar_if_id("bar_if_id"), 
+    ula_ex("ula_ex"), 
+    op2_mux("op2_mux"), 
+    b_reg("b_reg"), 
+    controle("control"), 
+    sign_ext("sign_ext"),
+    bar_id_ex("bar_id_ex")
+  {
     pcWrite.write(true);
     fourConstant.write(4);
     resetPc.write(false);
@@ -149,21 +179,61 @@ SC_MODULE(test_cpu) {
     bar_id_ex.rt(read1);
     bar_id_ex.rs(read2);
 
-    bar_id_ex.isJump_out(isJump_out);
-    bar_id_ex.regWrite_out(regWrite_out);
-    bar_id_ex.op2Sel_out(op2Sel_out);
-    bar_id_ex.dataRead_out(dataRead_out);
-    bar_id_ex.dataWrite_out(dataWrite_out);
-    bar_id_ex.memToReg_out(memToReg_out);
-    bar_id_ex.opUla_out(opUla_out);
-    bar_id_ex.flagSel_out(flagSel_out);
-    bar_id_ex.read1_out(read1_out);
-    bar_id_ex.read2_out(read2_out);
-    bar_id_ex.immediate_out(immediate_out);
-    bar_id_ex.pc_out(pc_out);
-    bar_id_ex.rd_out(rd_out);
-    bar_id_ex.rt_out(rt_out);
-    bar_id_ex.rs_out(rs_out);
+    bar_id_ex.isJump_out(id_ex_isJump_out);
+    bar_id_ex.regWrite_out(id_ex_regWrite_out);
+    bar_id_ex.op2Sel_out(id_ex_op2Sel_out);
+    bar_id_ex.dataRead_out(id_ex_dataRead_out);
+    bar_id_ex.dataWrite_out(id_ex_dataWrite_out);
+    bar_id_ex.memToReg_out(id_ex_memToReg_out);
+    bar_id_ex.opUla_out(id_ex_opUla_out);
+    bar_id_ex.flagSel_out(id_ex_flagSel_out);
+    bar_id_ex.read1_out(id_ex_read1_out);
+    bar_id_ex.read2_out(id_ex_read2_out);
+    bar_id_ex.immediate_out(id_ex_immediate_out);
+    bar_id_ex.pc_out(id_ex_pc_out);
+    bar_id_ex.rd_out(id_ex_rd_out);
+    bar_id_ex.rt_out(id_ex_rt_out);
+    bar_id_ex.rs_out(id_ex_rs_out);
+
+    op2_mux.sel(id_ex_op2Sel_out);
+    op2_mux.A(id_ex_read2_out);
+    op2_mux.B(id_ex_immediate_out);
+    op2_mux.out(op2_mux_out);
+
+    ula_ex.A(id_ex_read1_out);
+    ula_ex.B(op2_mux_out);
+    ula_ex.op(id_ex_opUla_out);
+    ula_ex.R(ula_result_out);
+    ula_ex.zero(ula_zero_out);
+    ula_ex.negative(ula_negative_out);
+
+    bar_ex_mem.clk(clk);
+    bar_ex_mem.rst(earth); // Temporário
+    bar_ex_mem.earth(earth);
+    bar_ex_mem.vcc(vcc);
+    bar_ex_mem.isJump(id_ex_isJump_out);
+    bar_ex_mem.regWrite(id_ex_regWrite_out);
+    bar_ex_mem.dataRead(id_ex_dataRead_out);
+    bar_ex_mem.dataWrite(id_ex_dataWrite_out);
+    bar_ex_mem.memToReg(id_ex_memToReg_out);
+    bar_ex_mem.flagSel(id_ex_flagSel_out);
+    bar_ex_mem.ula_zero(ula_zero_out);
+    bar_ex_mem.ula_negative(ula_negative_out);
+    bar_ex_mem.ula_result(ula_result_out);
+    bar_ex_mem.reg_data(id_ex_read2_out);
+    bar_ex_mem.pc(id_ex_pc_out);
+
+    bar_ex_mem.isJump_out(ex_mem_isJump_out);
+    bar_ex_mem.regWrite_out(ex_mem_regWrite_out);
+    bar_ex_mem.dataRead_out(ex_mem_dataRead_out);
+    bar_ex_mem.dataWrite_out(ex_mem_dataWrite_out);
+    bar_ex_mem.memToReg_out(ex_mem_memToReg_out);
+    bar_ex_mem.ula_zero_out(ex_mem_ula_zero_out);
+    bar_ex_mem.ula_negative_out(ex_mem_ula_negative_out);
+    bar_ex_mem.flagSel_out(ex_mem_flagSel_out);
+    bar_ex_mem.pc_out(ex_mem_pc_out);
+    bar_ex_mem.ula_result_out(ex_mem_ula_result_out);
+    bar_ex_mem.reg_data_out(ex_mem_reg_data_out);
 
     SC_THREAD(clock_gen);
     SC_THREAD(test);
