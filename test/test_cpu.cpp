@@ -170,6 +170,7 @@ SC_MODULE(test_cpu) {
     mem_ins.palavra(palavra);
 
     bar_if_id.clk(clk);
+    bar_if_id.rst(jump_gate_out);
     bar_if_id.earth(earth);
     bar_if_id.vcc(vcc);
     bar_if_id.in_pc(pcCurrValue);

@@ -10,13 +10,13 @@ void if_id::process() {
 
 if_id::if_id(sc_module_name name) : sc_module(name) {
     ifid_pc.clk(clk);
-    ifid_pc.rst(earth);
+    ifid_pc.rst(rst);
     ifid_pc.we(vcc);
     ifid_pc.d_in(in_pc);
     ifid_pc.d_out(out_pc);
 
     ifid_inst.clk(clk);
-    ifid_inst.rst(earth);
+    ifid_inst.rst(rst);
     ifid_inst.we(vcc);
     ifid_inst.d_in(in_inst);
     ifid_inst.d_out(out_inst);

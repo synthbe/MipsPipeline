@@ -6,6 +6,7 @@
 
 SC_MODULE(if_id) {
   sc_in<bool> clk;
+  sc_in<bool> rst;
   sc_in<bool> earth, vcc;
   sc_in<sc_uint<32>> in_pc, in_inst;
   sc_out<sc_uint<32>> out_pc, out_inst;
