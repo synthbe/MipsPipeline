@@ -15,6 +15,7 @@
 #include "../include/and.hpp"
 #include "../include/utils.hpp"
 #include "../include/mem_wb.hpp"
+#include "../include/unid_adiantamento.hpp"
 
 #include <bitset>
 #include <systemc.h>
@@ -23,6 +24,7 @@ SC_MODULE(test_cpu) {
   const int CLOCK_SIZE_NS = 20;
   sc_signal<bool> clk;
   sc_signal<bool> vcc, earth;
+  sc_signal<sc_int<32>> zero;
 
   // Primeiro estágio
   registrador<32> pc{"pc"};
@@ -65,7 +67,18 @@ SC_MODULE(test_cpu) {
 
   // Terceiro estágio
   ula ula_ex{"ula_ex"};
+
+  mux4<sc_int<32>> ula_src1_mux{"ula_src1_mux"};
+  sc_signal<sc_int<32>> ula_src1_mux_out;
+
+  mux4<sc_int<32>> ula_src2_mux{"ula_src2_mux"};
+  sc_signal<sc_int<32>> ula_src2_mux_out;
+
   mux2<sc_int<32>> op2_mux{"op2_mux"};
+
+  unid_adiantamento ex_unid_adiantamento{"ex_unid_adiantamento"};
+  sc_signal<sc_uint<2>> forwardA, forwardB;
+
   sc_signal<sc_int<32>> op2_mux_out;
   sc_signal<sc_int<32>> ula_result_out;
   sc_signal<bool> ula_zero_out, ula_negative_out;
@@ -155,6 +168,7 @@ SC_MODULE(test_cpu) {
     resetPc.write(false);
     vcc.write(true);
     earth.write(false);
+    zero.write(0);
 
     pc.clk(clk);
     pc.rst(resetPc);
@@ -243,17 +257,40 @@ SC_MODULE(test_cpu) {
     bar_id_ex.rs_out(id_ex_rs_out);
     bar_id_ex.absolute_out(id_ex_absolute_out);
 
+    ula_src1_mux.sel(forwardA);
+    ula_src1_mux.A(id_ex_read1_out);
+    ula_src1_mux.B(ex_mem_ula_result_out);
+    ula_src1_mux.C(mem_wb_ula_result_out);
+    ula_src1_mux.D(zero);
+    ula_src1_mux.out(ula_src1_mux_out);
+
+    ula_src2_mux.sel(forwardB);
+    ula_src2_mux.A(id_ex_read2_out);
+    ula_src2_mux.B(ex_mem_ula_result_out);
+    ula_src2_mux.C(mem_wb_ula_result_out);
+    ula_src2_mux.D(zero);
+    ula_src2_mux.out(ula_src2_mux_out);
+
     op2_mux.sel(id_ex_op2Sel_out);
-    op2_mux.A(id_ex_read2_out);
+    op2_mux.A(ula_src2_mux_out);
     op2_mux.B(id_ex_immediate_out);
     op2_mux.out(op2_mux_out);
 
-    ula_ex.A(id_ex_read1_out);
+    ula_ex.A(ula_src1_mux_out);
     ula_ex.B(op2_mux_out);
     ula_ex.op(id_ex_opUla_out);
     ula_ex.R(ula_result_out);
     ula_ex.zero(ula_zero_out);
     ula_ex.negative(ula_negative_out);
+
+    ex_unid_adiantamento.ID_EX_rs(id_ex_rs_out);
+    ex_unid_adiantamento.ID_EX_rt(id_ex_rt_out);
+    ex_unid_adiantamento.EX_MEM_rd(ex_mem_rd_out);
+    ex_unid_adiantamento.EX_MEM_RegWrite(ex_mem_regWrite_out);
+    ex_unid_adiantamento.MEM_WB_rd(mem_wb_rd_out);
+    ex_unid_adiantamento.MEM_WB_RegWrite(mem_wb_regWrite_out);
+    ex_unid_adiantamento.ForwardA(forwardA);
+    ex_unid_adiantamento.ForwardB(forwardB);
 
     bar_ex_mem.clk(clk);
     bar_ex_mem.earth(earth);
