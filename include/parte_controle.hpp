@@ -39,11 +39,16 @@ enum J_TYPE_OP {
     IF_NEG
 };
 
+enum REG_SEL {
+    READ2_REG,
+    WRITE_REG
+};
+
 SC_MODULE(parte_controle) {
   sc_in<sc_uint<32>> palavra;
 
   sc_out<bool> isJump, regWrite, op2Sel,
-    dataRead, dataWrite, memToReg;
+    dataRead, dataWrite, memToReg, regSel;
   sc_out<sc_uint<11>> opUla;
   sc_out<sc_uint<2>> flagSel;
 

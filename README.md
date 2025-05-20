@@ -10,3 +10,6 @@ Exemplos:
 export SYSTEMC_PATH="$HOME/systemc/install"
 export SYSTEMC_PATH="$HOME/systemc-install"
 ```
+
+## Rodando
+O processador se encontra em `test/test_cpu.cpp`. Para rodar o teste, execute `make run-test_cpu`

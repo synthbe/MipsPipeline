@@ -13,6 +13,7 @@ void parte_controle::process() {
     opUla.write(funct);
     dataRead.write(false);
     dataWrite.write(false);
+    regSel.write(REG_SEL::READ2_REG);
     memToReg.write(MEM_TO_REG::ULA_RESULT);
   } else if (type == OP_TYPES::S_TYPE) { // Tipo S (ler/escrever na memoria)
     sc_uint<2> spec = opcode.range(1, 0);
@@ -29,6 +30,7 @@ void parte_controle::process() {
         regWrite.write(false);
         dataRead.write(true);
         dataWrite.write(false);
+        regSel.write(REG_SEL::WRITE_REG);
     }
   } else if (type == OP_TYPES::J_TYPE) {
     sc_uint<2> spec = opcode.range(1, 0);

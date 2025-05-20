@@ -20,3 +20,6 @@ run-%: build/test_%
 
 clean:
 	rm -rf build
+
+run-loader: loader.cpp $(SRC) | build
+	$(CXX) $(CXXFLAGS) $< $(SRC) $(LDFLAGS) -o $@

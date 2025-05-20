@@ -21,7 +21,7 @@ SC_MODULE(registrador) {
 
   SC_CTOR(registrador) {
     SC_METHOD(process);
-    sensitive << clk.pos() << rst;
+    sensitive << clk << rst;
   };
 };
 

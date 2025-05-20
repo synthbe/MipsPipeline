@@ -16,8 +16,11 @@
 #include "../include/utils.hpp"
 #include "../include/mem_wb.hpp"
 #include "../include/unid_adiantamento.hpp"
+#include "../include/unid_detec_conflitos.hpp"
+#include "../include/mux_controle.hpp"
 
 #include <bitset>
+#include <fstream>
 #include <systemc.h>
 
 SC_MODULE(test_cpu) {
@@ -32,7 +35,7 @@ SC_MODULE(test_cpu) {
   somador inc{"inc"};
   sc_signal<sc_uint<32>> fourConstant, pcCurrValue, palavra;
   sc_signal<sc_uint<32>> inc_result_out;
-  sc_signal<bool> resetPc, pcWrite;
+  sc_signal<bool> resetPc;
 
   // Registradores IF/ID
   if_id bar_if_id{"bar_if_id"};
@@ -46,13 +49,23 @@ SC_MODULE(test_cpu) {
   banco_reg b_reg{"b_reg"};
   parte_controle controle{"control"};
   signal_extend sign_ext{"sign_ext"};
+  unid_detec_conflitos detec_conflitos{"detec_conflitos"};
+  mux_controle mux_sinais_controle{"mux_sinais_controle"};
+  mux2<sc_uint<5>> mux_reg_sel{"mux_reg_sel"};
+  sc_signal<sc_uint<5>> selected_read2;
+  sc_signal<bool> pcWrite, if_id_write, mux_controle_sel;
   sc_signal<sc_int<32>> ext_immidiate, b_reg_result1, b_reg_result2;
 
   // Sinais de saída da parte de contole
   sc_signal<bool> isJump, regWrite, op2Sel,
-    dataRead, dataWrite, memToReg;
+    dataRead, dataWrite, memToReg, regSel;
   sc_signal<sc_uint<11>> opUla;
   sc_signal<sc_uint<2>> flagSel;
+
+  sc_signal<bool> isJump_out, regWrite_out, op2Sel_out,
+    dataRead_out, dataWrite_out, memToReg_out, regSel_out;
+  sc_signal<sc_uint<11>> opUla_out;
+  sc_signal<sc_uint<2>> flagSel_out;
 
   id_ex bar_id_ex{"bar_id_ex"};
 
@@ -163,7 +176,6 @@ SC_MODULE(test_cpu) {
     sign_ext("sign_ext"),
     bar_id_ex("bar_id_ex")
   {
-    pcWrite.write(true);
     fourConstant.write(4);
     resetPc.write(false);
     vcc.write(true);
@@ -196,6 +208,38 @@ SC_MODULE(test_cpu) {
     bar_if_id.write1(write1);
     bar_if_id.immediate(immediate);
     bar_if_id.absolute(absolute);
+    bar_if_id.if_id_write(if_id_write);
+
+    mux_sinais_controle.sel(mux_controle_sel);
+    mux_sinais_controle.isJump(isJump);
+    mux_sinais_controle.regWrite(regWrite);
+    mux_sinais_controle.op2Sel(op2Sel);
+    mux_sinais_controle.dataRead(dataRead);
+    mux_sinais_controle.dataWrite(dataWrite);
+    mux_sinais_controle.memToReg(memToReg);
+    mux_sinais_controle.opUla(opUla);
+    mux_sinais_controle.flagSel(flagSel);
+    mux_sinais_controle.isJump_out(isJump_out);
+    mux_sinais_controle.regWrite_out(regWrite_out);
+    mux_sinais_controle.op2Sel_out(op2Sel_out);
+    mux_sinais_controle.dataRead_out(dataRead_out);
+    mux_sinais_controle.dataWrite_out(dataWrite_out);
+    mux_sinais_controle.memToReg_out(memToReg_out);
+    mux_sinais_controle.opUla_out(opUla_out);
+    mux_sinais_controle.flagSel_out(flagSel_out);
+
+    detec_conflitos.PCWrite(pcWrite);
+    detec_conflitos.IF_ID_Write(if_id_write);
+    detec_conflitos.ControlMux(mux_controle_sel);
+    detec_conflitos.IF_ID_rs(read1);
+    detec_conflitos.IF_ID_rt(read2);
+    detec_conflitos.ID_EX_rt(id_ex_rt_out);
+    detec_conflitos.ID_EX_MemRead(id_ex_dataRead_out);
+
+    mux_reg_sel.sel(regSel);
+    mux_reg_sel.A(read2);
+    mux_reg_sel.B(write1);
+    mux_reg_sel.out(selected_read2);
 
     controle.palavra(ifid_inst_saida);
     controle.isJump(isJump);
@@ -206,6 +250,7 @@ SC_MODULE(test_cpu) {
     controle.memToReg(memToReg);
     controle.opUla(opUla);
     controle.flagSel(flagSel);
+    controle.regSel(regSel);
 
     sign_ext.d_in(immediate);
     sign_ext.d_out(ext_immidiate);
@@ -213,7 +258,7 @@ SC_MODULE(test_cpu) {
     b_reg.clk(clk);
     b_reg.we(earth);
     b_reg.rs1(read1);
-    b_reg.rs2(read2);
+    b_reg.rs2(selected_read2);
     b_reg.rd(mem_wb_rd_out);
     b_reg.wd(mux_mem_to_reg_out);
     b_reg.rd1(b_reg_result1);
@@ -223,14 +268,14 @@ SC_MODULE(test_cpu) {
     bar_id_ex.rst(jump_gate_out);
     bar_id_ex.earth(earth);
     bar_id_ex.vcc(vcc);
-    bar_id_ex.isJump(isJump);
-    bar_id_ex.regWrite(regWrite);
-    bar_id_ex.op2Sel(op2Sel);
-    bar_id_ex.dataRead(dataRead);
-    bar_id_ex.dataWrite(dataWrite);
-    bar_id_ex.memToReg(memToReg);
-    bar_id_ex.opUla(opUla);
-    bar_id_ex.flagSel(flagSel);
+    bar_id_ex.isJump(isJump_out);
+    bar_id_ex.regWrite(regWrite_out);
+    bar_id_ex.op2Sel(op2Sel_out);
+    bar_id_ex.dataRead(dataRead_out);
+    bar_id_ex.dataWrite(dataWrite_out);
+    bar_id_ex.memToReg(memToReg_out);
+    bar_id_ex.opUla(opUla_out);
+    bar_id_ex.flagSel(flagSel_out);
     bar_id_ex.read1(b_reg_result1);
     bar_id_ex.read2(b_reg_result2);
     bar_id_ex.immediate(ext_immidiate);
@@ -379,6 +424,7 @@ SC_MODULE(test_cpu) {
 };
 
 int sc_main(int argc, char **argv) {
+
   test_cpu tb("tb");
   sc_start();
   return 0;
