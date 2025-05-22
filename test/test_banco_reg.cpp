@@ -4,8 +4,8 @@
 SC_MODULE(test_banco_reg) {
   sc_signal<bool> clk, we;
   sc_signal<sc_uint<5>> rs1, rs2, rd;
-  sc_signal<sc_uint<32>> wd;
-  sc_signal<sc_uint<32>> rd1, rd2;
+  sc_signal<sc_int<32>> wd;
+  sc_signal<sc_int<32>> rd1, rd2;
 
   banco_reg uut{"banco_reg"};
 

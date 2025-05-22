@@ -5,7 +5,7 @@ SC_MODULE(test_registrador) {
   sc_signal<bool> clk, rst, we;
   sc_signal<sc_uint<32>> d_in, d_out;
 
-  registrador uut{"reg"};
+  registrador<32> uut{"reg"};
 
   void clock_gen() {
     while (true) {

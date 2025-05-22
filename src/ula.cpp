@@ -1,26 +1,24 @@
 #include "../include/ula.hpp"
 
 void ula::process() {
-  sc_uint<32> a = A.read();
-  sc_uint<32> b = B.read();
-  sc_uint<32> r = 0;
-  bool z = false, n = false, e = false;
+  sc_int<32> a = A.read();
+  sc_int<32> b = B.read();
+  sc_int<32> r = 0;
+  bool z = false, n = false;
 
   switch (op.read()) {
-    case 0: r = a + b; break;
-    case 1: r = a - b; break;
-    case 2: r = a & b; break;
-    case 3: r = a | b; break;
-    case 4: r = a ^ b; break;
-    case 5: r = ~a; break;
-    case 6: e = (a == b); r = 0; break;
+    case SOMA: r = a + b; break;
+    case SUB: r = a - b; break;
+    case AND: r = a & b; break;
+    case OR: r = a | b; break;
+    case XOR: r = a ^ b; break;
+    case NOT: r = ~a; break;
     default: r = 0;
   }
 
   R.write(r);
   zero.write(r == 0);
-  negative.write(r[31] == 1);
-  equal.write(e);
+  negative.write(r < 0);
 }
 
 ula::ula(sc_module_name name) : sc_module(name) {

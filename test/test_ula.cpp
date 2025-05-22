@@ -6,9 +6,9 @@
 #include <iostream>
 
 SC_MODULE(test_ula) {
-  sc_signal<sc_uint<32>> A, B, R;
-  sc_signal<sc_uint<3>> op;
-  sc_signal<bool> zero, negative, equal;
+  sc_signal<sc_int<32>> A, B, R;
+  sc_signal<sc_uint<11>> op;
+  sc_signal<bool> zero, negative;
 
   ula uut{"ula"};
 
@@ -22,18 +22,6 @@ SC_MODULE(test_ula) {
     op.write(0); // Sum
     wait(5, SC_NS);
     std::cout << "[Sum] (" << A.read() << ", " << B.read() << ") = " << R.read() << std::endl;
-
-    A.write(36);
-    B.write(42);
-    op.write(6); // Equal
-    wait(5, SC_NS);
-    std::cout << "[Equ] (" << A.read() << ", " << B.read() << ") = " << equal.read() << std::endl;
-
-    A.write(42);
-    B.write(42);
-    op.write(6); // Equal
-    wait(5, SC_NS);
-    std::cout << "[Equ] (" << A.read() << ", " << B.read() << ") = " << equal.read() << std::endl;
   }
 
   SC_CTOR(test_ula) : uut("ula") {
@@ -43,7 +31,6 @@ SC_MODULE(test_ula) {
     uut.R(R);
     uut.zero(zero);
     uut.negative(negative);
-    uut.equal(equal);
 
     SC_THREAD(test);
   }
