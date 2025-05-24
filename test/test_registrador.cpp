@@ -17,28 +17,20 @@ SC_MODULE(test_registrador) {
   }
 
   void test() {
-    rst.write(true);
-    we.write(false);
-    d_in.write(0xAAAAAAAA);
-    wait(10, SC_NS);
-    std::cout << "Current value in d_out: 0x" << std::hex << d_out.read() << std::endl;
-
-    rst.write(false);
-    wait(10, SC_NS);
-
-    we.write(true);
-    d_in.write(0x12345678);
-    wait(10, SC_NS);
-    std::cout << "Current value in d_out: 0x" << std::hex << d_out.read() << std::endl;
-
-    d_in.write(0xDEADBEEF);
-    wait(10, SC_NS);
-
-    we.write(false);
-    d_in.write(0x0);
-    wait(10, SC_NS);
-
-    std::cout << "Final value in d_out: 0x" << std::hex << d_out.read() << std::endl;
+    for(int i=1; i<=10; i++) {
+        d_in.write(i);
+        if(i == 5) {
+            rst.write(true);
+        } else if (i == 6) {
+            rst.write(false);
+        }
+        wait(10, SC_NS);
+        cout << "Current input is: " << d_in.read() << endl;
+        if(i == 5) {
+            cout << "Store is reseted at " << i << endl;
+        }
+        cout << "Current output is: " << d_out.read() << endl;
+    }    
 
     sc_stop();
   }

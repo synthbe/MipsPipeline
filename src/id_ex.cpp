@@ -5,6 +5,7 @@ void id_ex::connect_flip_flop_d(flip_flop_d &ff, sc_in<bool> &in, sc_out<bool> &
   ff.rst(rst);
   ff.a(in);
   ff.b(out);
+  ff.we(vcc);
 }
 
 template<int N>

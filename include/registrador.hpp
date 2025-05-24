@@ -7,21 +7,34 @@ template<int N = 32>
 SC_MODULE(registrador) {
   sc_in<bool> clk;
   sc_in<bool> rst;
-  sc_in<bool> we; // 0 to write 1 to read
+  sc_in<bool> we; // 1 to write 
   sc_in<sc_uint<N>> d_in;
   sc_out<sc_uint<N>> d_out;
 
-  void process() {
-    if (rst.read()) {
-        d_out.write(0);
-    } else if (we.read()) {
-        d_out.write(d_in.read());
+  sc_signal<sc_uint<N>> storage;
+
+
+  void wwrite() {
+    while(true) {
+        wait(clk.posedge_event());
+        if(rst.read()) {
+            storage.write(0);
+        } else if (we.read()) {
+            storage.write(d_in.read());
+        }
     }
   };
 
+  void read() {
+    while(true) {
+        wait(clk.negedge_event());
+        d_out.write(storage.read());
+    }
+  }
+
   SC_CTOR(registrador) {
-    SC_METHOD(process);
-    sensitive << clk << rst;
+    SC_THREAD(wwrite);
+    SC_THREAD(read);
   };
 };
 

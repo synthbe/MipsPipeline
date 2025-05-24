@@ -5,6 +5,7 @@ void ex_mem::connect_flip_flop_d(flip_flop_d &ff, sc_in<bool> &in, sc_out<bool> 
   ff.rst(earth);
   ff.a(in);
   ff.b(out);
+  ff.we(vcc);
 }
 
 template<int N>

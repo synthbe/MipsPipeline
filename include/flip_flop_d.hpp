@@ -8,10 +8,15 @@
 SC_MODULE(flip_flop_d) {
   sc_in<bool> clk;
   sc_in<bool> rst;
-  sc_in<bool> a;
-  sc_out<bool> b;
+  sc_in<bool> we; // 1 for write
+  sc_in<bool> a; // entrada
+  sc_out<bool> b; // saída;
 
-  void process();
+  sc_signal<bool> storage;
+
+  void wwrite();
+
+  void read();
 
   SC_CTOR(flip_flop_d);
 };
