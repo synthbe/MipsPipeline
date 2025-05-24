@@ -43,7 +43,7 @@ uint get_funct(string& instruction) {
 }
 
 string output = 
-"#include \"../include/carregar.hpp\";\n"
+"#include \"../include/carregar.hpp\"\n"
 "\n"
 "void carregar(sc_uint<8> *mem_instrucao, sc_int<32> *mem_dados) {\n";
 
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
 
     output.append("};\n");
 
-    ofstream outFile("test/carregar.cpp");
+    ofstream outFile("src/carregar.cpp");
     outFile << output;
     outFile.close();
     cout << "Arquivo test/carregar.cpp gerado com sucesso!" << endl;
