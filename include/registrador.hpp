@@ -7,7 +7,7 @@ template<int N = 32>
 SC_MODULE(registrador) {
   sc_in<bool> clk;
   sc_in<bool> rst;
-  sc_in<bool> we; // 1 to write 
+  sc_in<bool> we; // 1 to write
   sc_in<sc_uint<N>> d_in;
   sc_out<sc_uint<N>> d_out;
 

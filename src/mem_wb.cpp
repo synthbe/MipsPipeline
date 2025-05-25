@@ -26,12 +26,14 @@ void mem_wb::connect_register(registrador<N> &reg, sc_signal<sc_uint<N>> &in, sc
   reg.d_out(out);
 }
 
-void mem_wb::process() {
-    ula_result_uint.write(static_cast<sc_uint<32>>(ula_result.read()));
-    ula_result_out.write(static_cast<sc_int<32>>(ula_result_out_uint.read()));
+void mem_wb::wwrite() {
+  ula_result_uint.write(static_cast<sc_uint<32>>(ula_result.read()));
+  mem_data_uint.write(static_cast<sc_uint<32>>(mem_data.read()));
+}
 
-    mem_data_uint.write(static_cast<sc_uint<32>>(mem_data.read()));
-    mem_data_out.write(static_cast<sc_int<32>>(mem_data_out_uint.read()));
+void mem_wb::read() {
+  ula_result_out.write(static_cast<sc_int<32>>(ula_result_out_uint.read()));
+  mem_data_out.write(static_cast<sc_int<32>>(mem_data_out_uint.read()));
 }
 
 mem_wb::mem_wb(sc_module_name name) : sc_module(name) {
@@ -40,6 +42,6 @@ mem_wb::mem_wb(sc_module_name name) : sc_module(name) {
     connect_register(ula_result_reg, ula_result_uint, ula_result_out_uint);
     connect_register(mem_data_reg, mem_data_uint, mem_data_out_uint);
     connect_register(rd_reg, rd, rd_out);
-  SC_METHOD(process);
-  sensitive << clk;
+  SC_METHOD(wwrite);
+  SC_METHOD(read);
 }

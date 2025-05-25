@@ -26,12 +26,14 @@ void ex_mem::connect_register(registrador<N> &reg, sc_signal<sc_uint<N>> &in, sc
   reg.d_out(out);
 }
 
-void ex_mem::process() {
-    ula_result_uint.write(static_cast<sc_uint<32>>(ula_result.read()));
-    ula_result_out.write(static_cast<sc_int<32>>(ula_result_out_uint.read()));
+void ex_mem::wwrite() {
+  ula_result_uint.write(static_cast<sc_uint<32>>(ula_result.read()));
+  reg_data_uint.write(static_cast<sc_uint<32>>(reg_data.read()));
+}
 
-    reg_data_uint.write(static_cast<sc_uint<32>>(reg_data.read()));
-    reg_data_out.write(static_cast<sc_int<32>>(reg_data_out_uint.read()));
+void ex_mem::read() {
+  ula_result_out.write(static_cast<sc_int<32>>(ula_result_out_uint.read()));
+  reg_data_out.write(static_cast<sc_int<32>>(reg_data_out_uint.read()));
 }
 
 ex_mem::ex_mem(sc_module_name name) : sc_module(name) {
@@ -48,6 +50,6 @@ ex_mem::ex_mem(sc_module_name name) : sc_module(name) {
     connect_register(reg_data_reg, reg_data_uint, reg_data_out_uint);
     connect_register(absolute_reg, absolute, absolute_out);
     connect_register(rd_reg, rd, rd_out);
-  SC_METHOD(process);
-  sensitive << clk;
+  SC_METHOD(wwrite);
+  SC_METHOD(read);
 }

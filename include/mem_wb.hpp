@@ -39,8 +39,8 @@ SC_MODULE(mem_wb) {
   template<int N>
   void connect_register(registrador<N> &reg, sc_signal<sc_uint<N>> &in, sc_signal<sc_uint<N>> &out);
 
-
-  void process();
+  void wwrite();
+  void read();
 
   SC_CTOR(mem_wb);
 };

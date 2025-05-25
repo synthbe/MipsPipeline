@@ -9,7 +9,6 @@ SC_MODULE(ex_mem) {
   sc_in<bool> clk;
   sc_in<bool> earth, vcc;
 
-
   sc_in<bool> isJump, regWrite,
     dataRead, dataWrite, memToReg;
   sc_in<sc_uint<2>> flagSel;
@@ -57,8 +56,8 @@ SC_MODULE(ex_mem) {
   template<int N>
   void connect_register(registrador<N> &reg, sc_signal<sc_uint<N>> &in, sc_signal<sc_uint<N>> &out);
 
-
-  void process();
+  void wwrite();
+  void read();
 
   SC_CTOR(ex_mem);
 };
