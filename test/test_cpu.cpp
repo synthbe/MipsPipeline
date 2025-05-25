@@ -200,7 +200,7 @@ SC_MODULE(test_cpu) {
         std::cout << "\t\t\t.read2: " << id_ex_read2_out.read() << std::endl;
         std::cout << "\t\t\t.immediate: " << id_ex_immediate_out.read() << std::endl;
         std::cout << "\t\t\t.pc: " << id_ex_pc_out.read() << std::endl;
-        std::cout << "\t\t\t.rd: " << id_ex_pc_out.read() << std::endl;
+        std::cout << "\t\t\t.rd: " << id_ex_rd_out.read() << std::endl;
         std::cout << "\t\t\t.rt: " << id_ex_rt_out.read() << std::endl;
         std::cout << "\t\t\t.rs: " << id_ex_rs_out.read() << std::endl;
         std::cout << "\t\t\t.absolute: "  << "0b" << (std::bitset<26>{id_ex_absolute_out.read()}) << std::endl;
@@ -270,6 +270,33 @@ SC_MODULE(test_cpu) {
         std::cout << "\t\t\t.regSel: "  << regSel.read()  << std::endl;
     }
 
+    void printUnidAdiantamento() {
+        std::cout << "\tUnidade de Adiantamento:\n";
+        std::cout << "\t\tEntradas\n";
+        std::cout << "\t\t\tID_EX.rs: " << id_ex_rs_out.read() << std::endl;
+        std::cout << "\t\t\tID_EX.rt: " << id_ex_rt_out.read() << std::endl;
+        std::cout << "\t\t\tEX_MEM.rd: " << ex_mem_rd_out.read() << std::endl;
+        std::cout << "\t\t\tEX_MEM.RegWrite: " << ex_mem_regWrite_out.read() << std::endl;
+        std::cout << "\t\t\tMEM_WB.rd: " << mem_wb_rd_out.read() << std::endl;
+        std::cout << "\t\t\tMEM_WB.RegWrite: " << mem_wb_regWrite_out.read() << std::endl;
+        std::cout << "\t\tSaídas\n";
+        std::cout << "\t\t\tForwardA: " << forwardA.read() << std::endl;
+        std::cout << "\t\t\tForwardB: " << forwardB.read() << std::endl;
+    }
+
+    void printUnidDetecConflito() {
+        std::cout << "\tUnidade de Detecção de Conflitos:\n";
+        std::cout << "\t\tEntradas\n";
+        std::cout << "\t\t\tIF_ID_rs: " << read1.read() << std::endl;
+        std::cout << "\t\t\tIF_ID_rt: " << read2.read() << std::endl;
+        std::cout << "\t\t\tID_EX_rt: " << id_ex_rt_out.read() << std::endl;
+        std::cout << "\t\t\tID_EX_MemRead: " << id_ex_dataRead_out.read() << std::endl;
+        std::cout << "\t\tSaídas\n";
+        std::cout << "\t\t\tPCWrite: " << pcWrite.read() << std::endl;
+        std::cout << "\t\t\tIF_ID_Write: " << if_id_write.read() << std::endl;
+        std::cout << "\t\t\tControlMux: " << mux_controle_sel.read() << std::endl;
+    }
+
   // A cada ciclo de clock avança uma instrução
   void test() {
     carregar(mem_ins.mem, mem_mem_dados.mem);
@@ -284,6 +311,8 @@ SC_MODULE(test_cpu) {
         printExMem();
         printMemWb();
         printParteControle();
+        printUnidAdiantamento();
+        printUnidDetecConflito();
         std::cout << "end[" << i << "]---------------------------------------- Press enter to continue..." << std::endl;
         cin.get();
     }

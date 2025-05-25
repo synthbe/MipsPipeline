@@ -54,5 +54,5 @@ id_ex::id_ex(sc_module_name name) : sc_module(name) {
     connect_register(rs_reg, rs, rs_out);
     connect_register(absolute_reg, absolute, absolute_out);
   SC_METHOD(process);
-  sensitive << clk.pos();
+  sensitive << clk;
 }

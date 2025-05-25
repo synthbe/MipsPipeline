@@ -49,5 +49,5 @@ ex_mem::ex_mem(sc_module_name name) : sc_module(name) {
     connect_register(absolute_reg, absolute, absolute_out);
     connect_register(rd_reg, rd, rd_out);
   SC_METHOD(process);
-  sensitive << clk.pos();
+  sensitive << clk;
 }

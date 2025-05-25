@@ -41,5 +41,5 @@ mem_wb::mem_wb(sc_module_name name) : sc_module(name) {
     connect_register(mem_data_reg, mem_data_uint, mem_data_out_uint);
     connect_register(rd_reg, rd, rd_out);
   SC_METHOD(process);
-  sensitive << clk.pos();
+  sensitive << clk;
 }

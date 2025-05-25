@@ -3,10 +3,7 @@
 // 2 -> EX_MEM
 // 1 -> MEM_WB
 // 0 -> sem adiantamento
-void unid_adiantamento::computar_adiantamento(){
-     ForwardA.write(0); 
-     ForwardB.write(0);
- 
+void unid_adiantamento::computar_adiantamento(){ 
      if (EX_MEM_RegWrite.read() &&
          EX_MEM_rd.read() != 0 &&
          EX_MEM_rd.read() == ID_EX_rs.read()) {
