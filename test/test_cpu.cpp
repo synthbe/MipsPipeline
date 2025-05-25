@@ -13,14 +13,12 @@
 #include "../include/mux4.hpp"
 #include "../include/pc_end.hpp"
 #include "../include/and.hpp"
-#include "../include/utils.hpp"
 #include "../include/mem_wb.hpp"
 #include "../include/unid_adiantamento.hpp"
 #include "../include/unid_detec_conflitos.hpp"
 #include "../include/mux_controle.hpp"
 
 #include <bitset>
-#include <fstream>
 #include <systemc.h>
 
 SC_MODULE(test_cpu) {
@@ -122,7 +120,7 @@ SC_MODULE(test_cpu) {
   // Quinto estágio
   mem_wb bar_mem_wb{"bar_mem_wb"};
   mux2<sc_int<32>> mux_mem_to_reg{"mux_mem_to_reg"};
- 
+
     sc_signal<bool> mem_wb_regWrite_out, mem_wb_memToReg_out;
     sc_signal<sc_uint<5>> mem_wb_rd_out;
     sc_signal<sc_int<32>> mem_wb_ula_result_out, mem_wb_mem_data_out;
@@ -148,7 +146,10 @@ SC_MODULE(test_cpu) {
         wait(CLOCK_SIZE_NS, SC_NS);
         std::cout << "----------------------------------------" << std::endl;
         std::cout << "palavra lida: 0b" << std::bitset<32>{palavra.read()} << std::endl;
-        std::cout << "palavra: 0b" <<  std::bitset<32>{ifid_inst_saida.read()} << std::endl; 
+        std::cout << "palavra: 0b" <<  std::bitset<32>{ifid_inst_saida.read()} << std::endl;
+        std::cout << "ULA result: " << ex_mem_ula_result_out.read() << std::endl;
+        std::cout << "ULA is zero: " << ex_mem_ula_zero_out.read() << std::endl;
+        std::cout << "ULA is negative: " << id_ex_rt_out.read() << std::endl;
         std::cout << "isJump controle: " << isJump.read() << std::endl;
         std::cout << "isJump (id/ex): " << id_ex_isJump_out.read() << std::endl;
         std::cout << "isJump (ex/mem): " << ex_mem_isJump_out.read() << std::endl;
@@ -158,21 +159,29 @@ SC_MODULE(test_cpu) {
         std::cout << "Last last program counter: " << std::hex << "0x" << id_ex_pc_out.read() << std::endl;
         std::cout << "Last program counter: " << std::hex << "0x" << ifid_pc_saida.read() << std::endl;
         std::cout << "Curr program counter: " << std::hex << "0x" << pc.d_out.read() << std::endl;
+        std::cout << "Unidade de conflito IF_ID: " << if_id_write.read() << std::endl;
+        std::cout << "Unid de conflito Reg Fonte rt estagio ID/EX: " << id_ex_rt_out.read() << std::endl;
+        std::cout << "IF/ID: " << if_id_write.read() << std::endl;
+        std::cout << "ID/EX: " << id_ex_absolute_out.read() << std::endl;
+        std::cout << "EX/MEM: " << ex_mem_rd_out.read() << std::endl;
+        std::cout << "MEM/WB: " << mem_wb_rd_out.read() << std::endl;
+        std::cout << "Reset barrier IF/ID: " << bar_if_id.rst.read() << std::endl;
+        std::cout << "Reset barrier ID/EX: " << bar_id_ex.rst.read() << std::endl;
         std::cout << "----------------------------------------" << std::endl;
     }
 
     sc_stop();
   }
 
-  SC_CTOR(test_cpu) : 
-    pc("pc"), 
-    mem_ins("mem_ins"), 
-    inc("inc"), 
-    bar_if_id("bar_if_id"), 
-    ula_ex("ula_ex"), 
-    op2_mux("op2_mux"), 
-    b_reg("b_reg"), 
-    controle("control"), 
+  SC_CTOR(test_cpu) :
+    pc("pc"),
+    mem_ins("mem_ins"),
+    inc("inc"),
+    bar_if_id("bar_if_id"),
+    ula_ex("ula_ex"),
+    op2_mux("op2_mux"),
+    b_reg("b_reg"),
+    controle("control"),
     sign_ext("sign_ext"),
     bar_id_ex("bar_id_ex")
   {
