@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
     string token;
     bool isData = true;
     bool isAddress = true;
-    int offset = 0;
+    int offset = 4;
     while(getline(file, token)) {
         if(token == "--") {
             isData = false;
