@@ -17,11 +17,25 @@ SC_MODULE(test_ula) {
     B.write(6);
     op.write(1); // Sub
     wait(5, SC_NS);
-    std::cout << "[Sub] (" << A.read() << ", " << B.read() << ") = " << R.read() << std::endl;
+    std::cout << "[SUB] (" << A.read() << ", " << B.read() << ") = " << R.read() << " Negative " << negative.read() << std::endl;
 
-    op.write(0); // Sum
+    A.write(10);
+    B.write(9);
     wait(5, SC_NS);
-    std::cout << "[Sum] (" << A.read() << ", " << B.read() << ") = " << R.read() << std::endl;
+    std::cout << "[SUB] (" << A.read() << ", " << B.read() << ") = " << R.read() << " Zero " << zero.read() << std::endl;
+
+    A.write(9);
+    B.write(9);
+    op.write(1); // Sub
+    wait(5, SC_NS);
+    std::cout << "[SUB] (" << A.read() << ", " << B.read() << ") = " << R.read() << " Zero " << zero.read() << std::endl;
+
+
+    A.write(6);
+    B.write(10);
+    op.write(1); // Sub
+    wait(5, SC_NS);
+    std::cout << "[SUB] (" << A.read() << ", " << B.read() << ") = " << R.read() << " Negative " << negative.read() << std::endl;
   }
 
   SC_CTOR(test_ula) : uut("ula") {
