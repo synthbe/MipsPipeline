@@ -23,7 +23,7 @@
 #include <systemc.h>
 
 SC_MODULE(test_cpu) {
-  const int CLOCK_SIZE_NS = 20;
+  const int CLOCK_SIZE_NS = 100;
   sc_signal<bool> clk;
   sc_signal<bool> vcc, earth;
   sc_signal<sc_int<32>> zero;
@@ -297,11 +297,24 @@ SC_MODULE(test_cpu) {
         std::cout << "\t\t\tControlMux: " << mux_controle_sel.read() << std::endl;
     }
 
+    void printBancoReg() {
+        std::cout << "\tBanco de Registradores:\n";
+        std::cout << "\t\tEntradas:\n";
+        std::cout << "\t\t\t.regWrite: " << mem_wb_regWrite_out.read() << std::endl;
+        std::cout << "\t\t\t.rs1: " << read1.read() << std::endl;
+        std::cout << "\t\t\t.rs2: " << selected_read2.read() << std::endl;
+        std::cout << "\t\t\t.rd: " << mem_wb_rd_out.read() << std::endl;
+        std::cout << "\t\t\t.wd: " << mux_mem_to_reg_out.read() << std::endl;
+        std::cout << "\t\tSaídas:\n";
+        std::cout << "\t\t\t.rd1: " << b_reg_result1.read() << std::endl;
+        std::cout << "\t\t\t.rd2: " << b_reg_result2.read() << std::endl;
+    }
+
   // A cada ciclo de clock avança uma instrução
   void test() {
     carregar(mem_ins.mem, mem_mem_dados.mem);
 
-    for(int i=0; i<10; i++) {
+    for(int i=0; i<15; i++) {
         wait(CLOCK_SIZE_NS, SC_NS);
         std::cout << "srt[" << i << "]----------------------------------------" << std::endl;
         printContadorDePrograma();
@@ -313,11 +326,12 @@ SC_MODULE(test_cpu) {
         printParteControle();
         printUnidAdiantamento();
         printUnidDetecConflito();
+        printBancoReg();
+        std::cout << b_reg.regs[3].read() << std::endl;
         std::cout << "end[" << i << "]---------------------------------------- Press enter to continue..." << std::endl;
         cin.get();
     }
 
-    std::cout << b_reg.regs[1] << std::endl;
 
     sc_stop();
   }
@@ -414,7 +428,7 @@ SC_MODULE(test_cpu) {
     sign_ext.d_out(ext_immidiate);
 
     b_reg.clk(clk);
-    b_reg.we(earth);
+    b_reg.we(mem_wb_regWrite_out);
     b_reg.rs1(read1);
     b_reg.rs2(selected_read2);
     b_reg.rd(mem_wb_rd_out);

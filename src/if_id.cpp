@@ -22,5 +22,5 @@ if_id::if_id(sc_module_name name) : sc_module(name) {
     ifid_inst.d_out(out_inst);
 
   SC_METHOD(process);
-  sensitive << clk.pos();
+  sensitive << clk;
 }

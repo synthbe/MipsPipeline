@@ -2,20 +2,20 @@
 
 void banco_reg::write() {
   while (true) {
-    wait();
-    if (we.read() && rd.read() != 0){  
-      regs[rd.read()] = wd.read();
+    wait(clk.negedge_event());
+    if (we.read()){  
+      regs[rd.read()].write(wd.read());
     }
   }
 }
 
 void banco_reg::read() {
-  rd1.write(regs[rs1.read()]);
-  rd2.write(regs[rs2.read()]);
+  rd1.write(regs[rs1.read()].read());
+  rd2.write(regs[rs2.read()].read());
 }
 
 banco_reg::banco_reg(sc_module_name name) : sc_module(name) {
-  SC_CTHREAD(write, clk.pos());
+  SC_THREAD(write);
   SC_METHOD(read);
   sensitive << rs1 << rs2;
 }

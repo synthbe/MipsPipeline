@@ -11,7 +11,7 @@ SC_MODULE(banco_reg) {
   sc_in<sc_int<32>> wd;
   sc_out<sc_int<32>> rd1, rd2;
 
-  sc_int<32> regs[32];
+  sc_signal<sc_int<32>> regs[32];
 
   void write();
   void read();

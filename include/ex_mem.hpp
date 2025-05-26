@@ -3,6 +3,7 @@
 
 #include <systemc.h>
 #include "registrador.hpp"
+#include "registrador_int.hpp"
 #include "flip_flop_d.hpp"
 
 SC_MODULE(ex_mem) {
@@ -29,8 +30,8 @@ SC_MODULE(ex_mem) {
 
     registrador<2> flagSel_reg{"flagSel_reg"};
     registrador<32> pc_reg{"pc_reg"};
-    registrador<32> ula_result_reg{"ula_result_reg"};
-    registrador<32> reg_data_reg{"reg_data_reg"};
+    registrador_int<32> ula_result_reg{"ula_result_reg"};
+    registrador_int<32> reg_data_reg{"reg_data_reg"};
     registrador<26> absolute_reg{"absolute_reg"};
     registrador<5> rd_reg{"rd_reg"};
 
@@ -44,20 +45,13 @@ SC_MODULE(ex_mem) {
   sc_out<sc_int<32>> ula_result_out, reg_data_out;
   sc_out<sc_uint<26>> absolute_out;
 
-  sc_signal<sc_uint<32>> ula_result_uint, ula_result_out_uint;
-  sc_signal<sc_uint<32>> reg_data_uint, reg_data_out_uint;
-
-
   void connect_flip_flop_d(flip_flop_d &ff, sc_in<bool> &in, sc_out<bool> &out);
 
   template<int N>
   void connect_register(registrador<N> &reg, sc_in<sc_uint<N>> &in, sc_out<sc_uint<N>> &out);
 
   template<int N>
-  void connect_register(registrador<N> &reg, sc_signal<sc_uint<N>> &in, sc_signal<sc_uint<N>> &out);
-
-  void wwrite();
-  void read();
+  void connect_register(registrador_int<N> &reg, sc_in<sc_int<N>> &in, sc_out<sc_int<N>> &out);
 
   SC_CTOR(ex_mem);
 };

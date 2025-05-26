@@ -1,7 +1,7 @@
 #include "../include/carregar.hpp"
 
 void carregar(sc_uint<8> *mem_instrucao, sc_int<32> *mem_dados) {
-	mem_dados[1] = 10;
+	mem_dados[0] = 10;
 	mem_dados[2] = 30;
 	mem_dados[3] = 50;
 	mem_instrucao[4] = 0b10000000;
